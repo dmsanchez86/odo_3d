@@ -1,0 +1,79 @@
+<!doctype html>
+<html>
+	<head>
+		<script type="text/javascript" src="lib/three.min.js"></script>
+		<script type="text/javascript" src="lib/OBJLoader.js"></script>
+	</head>
+	<body>
+		<script type="text/javascript">
+			var camera, scene, renderer;
+			var container;
+			
+			init();
+			render();
+			
+			// Init function
+			function init(){
+				// Container
+				container = document.createElement('div');
+				document.body.appendChild(container);
+				
+				// Camera
+				camera = new THREE.PerspectiveCamera(70, window.innerWidth / window.innerHeight, 1, 2000);
+				camera.position.set(0, -40, 10);
+				
+				// Scene
+				scene = new THREE.Scene();
+				
+				// renderer
+				renderer = new THREE.WebGLRenderer();
+				renderer.setPixelRatio(window.devicePixelRatio);
+				renderer.setSize(window.innerWidth, window.innerHeight);
+				container.appendChild(renderer.domElement);
+				
+				// plane for the ground
+				var planeGeometry = new THREE.PlaneBufferGeometry(10, 20, 32);
+				var planeMaterial = new THREE.MeshBasicMaterial( { color: 0x000000 } );
+				var plane = new THREE.Mesh( planeGeometry, planeMaterial );
+				plane.position.set(0, 0, -1);
+				scene.add( plane );
+				
+				// Ambient light 
+				var ambient = new THREE.AmbientLight( 0xffffff );
+				scene.add(ambient);
+				
+				// Other light
+				var spotlLight = new THREE.SpotLight( 0xffffff );
+				spotlLight.position.set(100, -100, 100);
+				spotlLight.castShadow = true;
+				spotlLight.shadowMapWidth = 1024;
+				spotlLight.shadowMapHeight = 1024;
+				spotlLight.shadowCameraNear = 500;
+				spotlLight.shadowCameraFar = 4000;
+				spotlLight.shadowCameraFov = 30;
+				scene.add(spotlLight);
+				
+				// Load object
+				var loader = new THREE.OBJLoader();
+				loader.load(
+					'tooth_molar.obj',
+					function(object){
+						object.scale.set(2, 2, 2);
+						object.rotation.x = 45;
+						object.rotation.y = 2;
+						scene.add(object);
+					}
+				);
+				
+				// Camera look at
+				camera.lookAt( plane.position );
+			}
+			
+			// funtion to render object
+			function render(){
+				requestAnimationFrame(render);
+				renderer.render(scene, camera);
+			}
+		</script>
+	</body>
+</html>
