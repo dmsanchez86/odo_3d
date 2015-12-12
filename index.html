@@ -14,7 +14,7 @@
 	</head>
 	<body>
 		<script type="text/javascript">
-			var camera, scene, renderer, container, cube;
+			var camera, scene, renderer, container, cube, controls, ambient, tooth, spotlLight;
 			
 			init();
 			render();
@@ -26,16 +26,21 @@
 				document.body.appendChild(container);
 				
 				// Camera
-				camera = new THREE.PerspectiveCamera(135, window.innerWidth / window.innerHeight, 0.1, 1000);
-				camera.position.set(0, -30, 50);
+				camera = new THREE.PerspectiveCamera(45, window.innerWidth / window.innerHeight, 0.1, 1000);
+				camera.position.set(0, -120, 300);
 				
 				// Scene
 				scene = new THREE.Scene();
 				
 				// renderer
-				renderer = new THREE.WebGLRenderer();
+				renderer = new THREE.WebGLRenderer({ 
+					antialias: true, 
+					// alpha: true
+				});
+				renderer.shadowMapEnabled = true;
 				renderer.setPixelRatio(window.devicePixelRatio);
 				renderer.setSize(window.innerWidth, window.innerHeight);
+				renderer.setClearColor( 0x000000 );	
 				container.appendChild(renderer.domElement);
 				
 				// plane for the ground
@@ -74,11 +79,11 @@
 				// scene.add( cube );
 				
 				// Ambient light 
-				var ambient = new THREE.AmbientLight( 0xffffff );
+				ambient = new THREE.AmbientLight( 0xffffff );
 				scene.add(ambient);
 				
 				// Other light
-				var spotlLight = new THREE.SpotLight( 0xffffff );
+				spotlLight = new THREE.SpotLight( 0xb4e7f2, 1.8 );
 				spotlLight.position.set(100, -100, 100);
 				spotlLight.castShadow = true;
 				spotlLight.shadowMapWidth = 1024;
@@ -86,7 +91,7 @@
 				spotlLight.shadowCameraNear = 500;
 				spotlLight.shadowCameraFar = 4000;
 				spotlLight.shadowCameraFov = 30;
-				scene.add(spotlLight);
+			//	scene.add(spotlLight);
 				
 				// Load object
 				var loader = new THREE.OBJLoader();
@@ -94,7 +99,8 @@
 				loader.load(
 					'tooth_molar.obj',
 					function(object){
-						object.scale.set(3, 3, 3);
+						tooth = object;
+						object.scale.set(2, 2, 2);
 						object.rotation.x = 45;
 						object.rotation.y = 2;
 						scene.add(object);
@@ -102,8 +108,8 @@
 				);
 				
 				controls = new THREE.OrbitControls( camera, renderer.domElement );
-				controls.minDistance = 50;
-				controls.maxDistance = 200;
+				controls.minDistance = 37;
+				controls.maxDistance = 150;
 				
 				// Camera look at
 				camera.lookAt( plane.position );
@@ -112,6 +118,8 @@
 			// funtion to render object
 			function render(){
 				requestAnimationFrame(render);
+				
+				controls.update();
 				
 				// cube.rotation.x += 0.1;
 				// cube.rotation.y += 0.1;
