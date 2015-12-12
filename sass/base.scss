@@ -18,3 +18,12 @@ canvas{
 	width: 100% !important;
 	height: auto !important;
 }
+
+.container_tooth{
+	max-width: 100%;
+	width: 500px;
+	
+	canvas{
+		cursor: move;
+	}
+}

@@ -23,6 +23,8 @@
 			function init(){
 				// Container
 				container = document.createElement('div');
+				container.className = "container_tooth";
+				container.id = "container_tooth";
 				document.body.appendChild(container);
 				
 				// Camera
@@ -40,7 +42,8 @@
 				renderer.shadowMapEnabled = true;
 				renderer.setPixelRatio(window.devicePixelRatio);
 				renderer.setSize(window.innerWidth, window.innerHeight);
-				renderer.setClearColor( 0x000000 );	
+				renderer.setClearColor( 0x000000 );
+				renderer.domElement.id = "canvas_3d"; // agrego un id al canvas que renderiza el diente
 				container.appendChild(renderer.domElement);
 				
 				// plane for the ground
