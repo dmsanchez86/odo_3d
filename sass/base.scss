@@ -21,9 +21,11 @@ canvas{
 
 .container_tooth{
 	max-width: 100%;
-	width: 500px;
+	width: 700px;
 	
 	canvas{
 		cursor: move;
+		border: 5px solid rgba(18, 19, 18, 0.95);
+		@include box-sizing(border-box);
 	}
 }

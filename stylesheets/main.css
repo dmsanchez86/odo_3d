@@ -15,8 +15,15 @@ canvas {
 
 .container_tooth {
   max-width: 100%;
-  width: 500px; }
+  width: 700px; }
   .container_tooth canvas {
-    cursor: move; }
+    cursor: move;
+    border: 5px solid rgba(18, 19, 18, 0.95);
+    -webkit-box-sizing: border-box;
+    -khtml-box-sizing: border-box;
+    -moz-box-sizing: border-box;
+    -ms-box-sizing: border-box;
+    -o-box-sizing: border-box;
+    box-sizing: border-box; }
 
 /*# sourceMappingURL=main.css.map */
