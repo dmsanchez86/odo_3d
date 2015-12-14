@@ -12,10 +12,11 @@
 		<script type="text/javascript" src="lib/OBJLoader.js"></script>
 		<script type="text/javascript" src="lib/OrbitControls.js"></script>
 		<script type="text/javascript" src="lib/statics.min.js"></script>
+		<script type="text/javascript" src="lib/dat.gui.min.js"></script>
 	</head>
 	<body>
 		<script type="text/javascript">
-			var camera, scene, renderer, container, cube, controls, ambient, tooth, spotlLight, objec, stats;
+			var camera, scene, renderer, container, cube, controls, ambient, tooth, spotlLight, objec, stats, datGUI;
 			
 			init();
 			animate();
@@ -129,24 +130,82 @@
 				// scene.add(spotlLight);
 				
 				// Load object
-				var loader = new THREE.OBJLoader();
+				var loader = new THREE.JSONLoader();
+				loader.load('tooth_molar.js',createScene);
 				
-				loader.load(
-					'tooth_molar.obj',
-					function(object){
-						tooth = object;
-						object.scale.set(3, 3, 3);
-						object.rotation.x = 0;
-						object.rotation.y = 0;
-						object.translateY(10);
-						object.receiveShadow = true;
-						scene.add(object);
-					}
-				);
+				// var binLoader = new THREE.BinaryLoader();
+    //     		binLoader.load( "Model_bin.js", createScene );
+				
+				function createScene(object){
+					
+					var material = new THREE.MeshPhongMaterial( {
+						specular: 0x111111,
+						// map: THREE.ImageUtils.loadTexture( 'obj/leeperrysmith/Map-COL.jpg' ),
+						// specularMap: THREE.ImageUtils.loadTexture( 'obj/leeperrysmith/Map-SPEC.jpg' ),
+						// normalMap: THREE.ImageUtils.loadTexture( 'obj/leeperrysmith/Infinite-Level_02_Tangent_SmoothUV.jpg' ),
+						normalScale: new THREE.Vector2( 0.75, 0.75 ),
+						shininess: 25
+					} );
+					
+					mesh = new THREE.Mesh( object, material );
+					scene.add( mesh );
+					mesh.scale.set( 3, 3, 3 );
+					
+					tooth = mesh;
+					// object.scale.set(3, 3, 3);
+					// object.rotation.x = 0;
+					// object.rotation.y = 0;
+					mesh.translateY(10);
+					mesh.receiveShadow = true;	
+					// scene.add(object);
+				}
+				
+				/* datGui controls object */
+				guiControls = new function(){
+					// gui position
+					this.rotationX = 0.00;
+					this.rotationY = 0.00;
+					this.rotationZ = 0.01;
+					
+					// material
+					this.color = 0x000000;
+					this.form = 0;
+					this.wireframe = true;
+					// Mesh or line
+					this.lineshape = true;
+				}
+				
+				
+				
+				// dai gui settings
+				datGUI = new dat.GUI();
+				var rotFolder = datGUI.addFolder('Rotation Options');
+				var shapeFolder = datGUI.addFolder('Form Options');
+				var materialFolder = datGUI.addFolder('Material Options');
+				
+				materialFolder.open();
+				
+				rotFolder.add(guiControls, 'rotationX', 0.1);
+				rotFolder.add(guiControls, 'rotationY', 0.1);
+				rotFolder.add(guiControls, 'rotationZ', 0.1);
+				
+				materialFolder.addColor(guiControls, 'color').onChange(function(value){
+					console.log(value);
+					cube.material.color.setHex(value);
+					cube.material.color.setHex(value);
+				});
+				
+				materialFolder.add(guiControls, 'wireframe').name('Wireframe').onChange(function(value){
+					if(value)
+						cube.material.wireframe = true;
+					else
+						cube.material.wireframe = false;
+				});
 				
 				controls = new THREE.OrbitControls( camera, renderer.domElement );
 				controls.minDistance = 15;
 				controls.maxDistance = 1000;
+				controls.addEventListener('change', render);
 				
 				stats = new Stats();
 				stats.domElement.style.position = 'absolute';
