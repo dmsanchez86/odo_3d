@@ -1,7 +1,7 @@
 'use strict';
 
 // variables globales
-var camera, scene, renderer, container, cube, controls, ambient, tooth, spotlLight, object, stats, datGUI, line, raycaster, guiControls, mesh;
+var camera, scene, renderer, container, cube, controls, ambient, tooth, spotlLight, object, stats, datGUI, line, raycaster, guiControls, mesh,cameraPerspective,cameraPerspectiveHelper, light1,light2;
 
 // Carga de la página
 window.onload = load_page;
@@ -24,9 +24,14 @@ function init(){
 	camera = new THREE.PerspectiveCamera(80, window.innerWidth / window.innerHeight, 0.1, 2000);
 	camera.position.set(40, 40, 40);
 	
+	cameraPerspective = new THREE.PerspectiveCamera( 80, window.innerWidth / window.innerHeight, 0.1, 2000);
+
+	cameraPerspectiveHelper = new THREE.CameraHelper( cameraPerspective );
+	
 	// Scene
 	scene = new THREE.Scene();
 	
+	// scene.add( cameraPerspectiveHelper );
 	var light = new THREE.DirectionalLight( 0xffffff );
 	light.position.set( 0, 1, 0 );
 	// scene.add( light );
@@ -78,13 +83,19 @@ function init(){
 	
 	scene.add( new THREE.AmbientLight( 0x443333 ) );
 	
-	var light = new THREE.DirectionalLight( 0xffddcc, 1 );
-	light.position.set( 1, 0.75, 0.5 );
-	scene.add( light );
+	light1 = new THREE.DirectionalLight( 0xffddcc, 1 );
+	light1.position.set( 1, 0.75, 0.5 ).normalize();
+	light1.intensity = .7;
+	scene.add( light1 );
 
-	var light = new THREE.DirectionalLight( 0xccccff, 1 );
-	light.position.set( -1, 0.75, -0.5 );
-	scene.add( light );
+	light2 = new THREE.DirectionalLight( 0xccccff, 1 );
+	light2.position.set( -1, 0.75, -0.5 ).normalize();
+	light1.intensity = .6;
+	scene.add( light2 );
+	
+	var pointLight = new THREE.PointLight( 0xffaa00, .2 );
+	pointLight.position.set( 2000, 1200, 10000 );
+	// scene.add( pointLight );
 
 	
 // 	var light = new THREE.DirectionalLight( 0xffddcc, 1 );
@@ -106,13 +117,6 @@ function init(){
 	var mouseHelper = new THREE.Mesh( new THREE.BoxGeometry( 1, 1, 10 ), new THREE.MeshNormalMaterial() );
 	mouseHelper.visible = false;
 	scene.add( mouseHelper );
-	
-	var geometry = new THREE.BoxGeometry( 5, 5, 5 );
-	var material = new THREE.MeshLambertMaterial( { color: 0xff3300 } );
-	cube = new THREE.Mesh( geometry, material );
-	cube.position.set(2.5, 2.5, 2.5);
-	cube.castShadow = true;
-	scene.add( cube );
 	
 	// Ambient light 
 	ambient = new THREE.AmbientLight( 0xffffff );
@@ -140,9 +144,9 @@ function init(){
 		
 		var material = new THREE.MeshPhongMaterial( {
 			specular: 0x111111,
-			map: THREE.ImageUtils.loadTexture( 'textures/Map-COL.jpg' ),
-			specularMap: THREE.ImageUtils.loadTexture( 'textures/Map-SPEC.jpg' ),
-			normalMap: THREE.ImageUtils.loadTexture( 'textures/Infinite-Level_02_Tangent_SmoothUV.jpg' ),
+			// map: THREE.ImageUtils.loadTexture( 'textures/Map-COL.jpg' ),
+			// specularMap: THREE.ImageUtils.loadTexture( 'textures/Map-SPEC.jpg' ),
+			// normalMap: THREE.ImageUtils.loadTexture( 'textures/Infinite-Level_02_Tangent_SmoothUV.jpg' ),
 			normalScale: new THREE.Vector2( 0.75, 0.75 ),
 			shininess: 25
 		} );
@@ -211,6 +215,34 @@ function init(){
 	stats.domElement.style.position = 'absolute';
 	stats.domElement.style.top = '0px';
 	container.appendChild( stats.domElement );
+	
+	var r = "textures/";
+	var urls = [ r + "posx.jpg", r + "negx.jpg",
+				 r + "posy.jpg", r + "negy.jpg",
+				 r + "posz.jpg", r + "negz.jpg" ];
+
+	var textureCube = THREE.ImageUtils.loadTextureCube( urls );
+	
+	var shader = THREE.ShaderLib[ "cube" ];
+	console.table(shader);
+	
+	shader.uniforms[ "tCube" ].value = textureCube;
+
+	var material = new THREE.ShaderMaterial( {
+
+		fragmentShader: shader.fragmentShader,
+		vertexShader: shader.vertexShader,
+		uniforms: shader.uniforms,
+		side: THREE.BackSide
+
+	} );
+	
+	var geometry = new THREE.BoxGeometry( 7, 7, 7 );
+	var material = new THREE.MeshLambertMaterial( { color: 0x000000, envMap: textureCube, combine: THREE.MixOperation, reflectivity: 1 } );
+	cube = new THREE.Mesh( geometry, material );
+	cube.position.set(2.5, 2.5, 2.5);
+	cube.castShadow = true;
+	scene.add( cube );
 	
 	// Camera look at
 	camera.lookAt( scene.position );
